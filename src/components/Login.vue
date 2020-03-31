@@ -57,7 +57,7 @@ export default {
                 //这里本来返回的是promise对象，用await后可简化，注意之前的函数要加async
                 //这里使用解构的方法，把返回的对象中的data属性解构出来，赋值给res，注意这里的写法，对象解构是根据属性名解构。
                 const {data:res}=await this.$http.post("login",this.formlogin)
-                if(res.status!=200) return this.$message.error('错误')
+                if(res.meta.status!=200) return this.$message.error('错误')
                 this.$message.success('正确')
                 window.sessionStorage.setItem('token',res.data.token)
                 this.$router.push('/home')
