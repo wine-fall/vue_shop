@@ -24,6 +24,7 @@
             <el-table :data="userList" style="width: 100%" border stripe>
                 <el-table-column type="index" label="索引"></el-table-column>
                 <el-table-column prop="username" label="姓名" ></el-table-column>
+                <el-table-column prop="role_name" label="角色" ></el-table-column>
                 <el-table-column prop="mobile" label="手机" ></el-table-column>
                 <el-table-column prop="email" label="邮箱" ></el-table-column>
                 <el-table-column prop="mg_state" label="状态" >
@@ -37,7 +38,7 @@
                         <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEidtDialog(scope.row.id)"></el-button>
                         <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteUser(scope.row.id)"></el-button>
                         <el-tooltip class="item" effect="dark" content="修改角色" placement="top" :enterable="false">
-                            <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+                            <el-button type="warning" icon="el-icon-setting" size="mini" @click="showEditRolesDialog(scope.row)"></el-button>
                         </el-tooltip>                    
                     </template>
                 </el-table-column>
@@ -46,8 +47,8 @@
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[1, 5, 10]" :page-size="queryInfo.pagesize" layout="total, sizes, prev, pager, next, jumper" :total="total"> </el-pagination>
         </el-card>
         <!-- 添加用户对话框 -->
-        <el-dialog title="添加用户名" :visible.sync="addFormVisible" label-width="50%" @close="FormClosed">
-            <el-form ref="FormRef" :model="addForm" label-width="80px" :rules="addFormRules">
+        <el-dialog title="添加用户名" :visible.sync="addFormVisible" label-width="50%" @close="addFormClosed">
+            <el-form ref="addFormRef" :model="addForm" label-width="80px" :rules="addFormRules">
                 <el-form-item label="用户名" prop="username" >
                     <el-input v-model="addForm.username"></el-input>
                 </el-form-item>
@@ -85,6 +86,21 @@
                 <el-button @click="editFormVisible = false">取 消</el-button>
                 <el-button type="primary" @click="editFormCheck">确 定</el-button>
             </div>
+        </el-dialog>
+        <!-- 编辑用户对话框 -->
+        <el-dialog title="提示" :visible.sync="editRolesVisible" width="50%" :data="userInfo" @close="resetEditRolesDialog">
+            <div>
+                <p>当前的用户: {{userInfo.username}}</p>
+                <p>当前的角色: {{userInfo.role_name}}</p>
+                <p>选择角色: <el-select v-model="setRolesId" placeholder="请选择">
+                    <el-option v-for="item in roleList" :key="item.id" :label="item.roleName" :value="item.id">
+                    </el-option>
+                </el-select></p>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editRolesVisible = false">取 消</el-button>
+                <el-button type="primary" @click="editRoles">确 定</el-button>
+            </span>
         </el-dialog>
         
     </div>
@@ -159,7 +175,11 @@ export default {
                     { required: true, message: '请输入邮箱', trigger: 'blur' },
                     {validator:checkEmail,trigger:'blur'}
                 ]
-            }         
+            },
+            editRolesVisible:false,
+            roleList:{},
+            setRolesId:'',
+            userInfo:{}      
 
         }
     },
@@ -199,6 +219,9 @@ export default {
         FormClosed(){
             this.$refs.FormRef.resetFields();
         },
+        addFormClosed(){
+             this.$refs.addFormRef.resetFields();
+        },
         addFormCheck(){
             this.$refs.addFormRef.validate(async valid =>{
                 if(!valid) return
@@ -235,19 +258,44 @@ export default {
             }) 
         },
         async deleteUser(id){
-            const cofirmResult=await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
+            const confirmResult=await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).catch(
                 err=>err
             )
-            if(cofirmResult=='cancel'){return this.$message.info('已经取消删除')}
+            if(confirmResult=='cancel'){return this.$message.info('已经取消删除')}
             const {data:res} = await this.$http.delete('users/' + id)
             if(res.meta.status!=200){return this.$message.error('删除失败')}
             this.$message.success('删除成功')
             this.getUserList();
-
+            this.editRolesVisible=false
+        },
+        async showEditRolesDialog(userInfo){
+            this.userInfo=userInfo;
+            const {data:res}=await this.$http.get('roles')
+            if(res.meta.status!==200) return this.$message.error('获取角色失败')
+            this.roleList=res.data;
+            this.editRolesVisible=true
+        },
+        async editRoles(){
+            if (!this.setRolesId){
+                return this.$message.error('请选择要分配的新角色')
+            }
+            const {data:res} = await this.$http.put(`users/${this.userInfo.id}/role`,{
+                rid: this.setRolesId
+            })
+            console.log(res);
+            
+            if(res.meta.status!==200)return this.$message.error('修改角色失败')
+            this.$message.success('修改角色成功')
+            this.getUserList();
+            this.editRolesVisible=false;
+        },
+        resetEditRolesDialog(){
+            this.setRolesId='',
+            this.userInfo={}
         }
     }
     
