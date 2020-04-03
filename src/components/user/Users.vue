@@ -273,6 +273,7 @@ export default {
             this.editRolesVisible=false
         },
         async showEditRolesDialog(userInfo){
+            
             this.userInfo=userInfo;
             const {data:res}=await this.$http.get('roles')
             if(res.meta.status!==200) return this.$message.error('获取角色失败')
@@ -283,10 +284,11 @@ export default {
             if (!this.setRolesId){
                 return this.$message.error('请选择要分配的新角色')
             }
+            console.log(this.setRolesId);
             const {data:res} = await this.$http.put(`users/${this.userInfo.id}/role`,{
                 rid: this.setRolesId
             })
-            console.log(res);
+            
             
             if(res.meta.status!==200)return this.$message.error('修改角色失败')
             this.$message.success('修改角色成功')
