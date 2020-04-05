@@ -11,22 +11,22 @@
             <el-row>
                 <el-col>
                     <!-- 注意这里的button是放在inpu标签里头的，所以一定要加slot="append"，不然显示不出来 -->
-                    <el-input placeholder="请输入内容" style="width:200px"><el-button slot="append" icon="el-icon-search"></el-button></el-input>
+                    <el-input placeholder="请输入内容" style="width:200px"  clearable ><el-button slot="append" icon="el-icon-search" ></el-button></el-input>
                 </el-col>
             </el-row>
             <!-- 表格渲染区 -->
-            <el-table :data="goodsList">
+            <el-table :data="goodsList" border stripe>
                 <el-table-column type="index" label="#"></el-table-column>
                 <el-table-column label="订单编号" prop="order_number"></el-table-column>
                 <el-table-column label="订单价格" prop="order_price"></el-table-column>
-                <el-table-column label="是否付款" >
+                <el-table-column label="是否付款" prop="pay_status">
                     <template slot-scope="scope" >
                         <el-tag type="danger" v-if="scope.row.pay_status=='0'">未付款</el-tag>
                         <el-tag type="success" v-else>已付款</el-tag>
                     </template>
                 </el-table-column>
                 <el-table-column label="是否发货" prop="is_send"></el-table-column>
-                <el-table-column label="下单时间">
+                <el-table-column label="下单时间" prop="create_time">
                     <template slot-scope="scope">
                         {{scope.row.create_time | dataForm}}
                     </template>
@@ -76,7 +76,7 @@ export default {
     data(){
         return{
          queryInfo:{
-             query:'',
+             query:'20',
              pagenum:1,
              pagesize:10
          },
@@ -110,9 +110,10 @@ export default {
                 params:this.queryInfo
             })
             if(res.meta.status!==200) return this.$message.error('获取订单数据失败')
-            console.log(res.data);
+            
             this.total=res.data.total,
             this.goodsList=res.data.goods
+            console.log(this.goodsList);
         },
         handleSizeChange(newSize){
             this.queryInfo.pagesize=newSize

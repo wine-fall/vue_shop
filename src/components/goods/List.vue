@@ -63,6 +63,8 @@ export default {
             if(res.meta.status!==200) return this.$message.error('请求商品列表失败')
             this.goodsList=res.data.goods
             this.total=res.data.total
+            console.log(this.goodsList);
+            
         },
         handleSizeChange(newSize){
             this.queryInfo.pagesize=newSize;
