@@ -61,7 +61,6 @@ export default {
                 this.$message.success('正确')
                 window.sessionStorage.setItem('token',res.data.token)
                 this.$router.push('/home')
-                
             });
         }
     }
