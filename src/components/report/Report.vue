@@ -75,14 +75,8 @@ export default {
     //             data: [5, 20, 36, 10, 10, 20]
     //         }]
     //     };
-    //使用lodash自带的merge方法做对象合并
+    //使用lodash自带的merge方法做对象合并，不明白这个操作得到啥，有啥意义？
     const result=_.merge(res.data,this.options)
-    console.log(this.options);
-    console.log(res.data);
-    console.log(result);
-    
-    
-    
     // 使用刚指定的配置项和数据显示图表。
     myChart.setOption(result)
     }

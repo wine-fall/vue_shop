@@ -11,7 +11,7 @@
                     <el-button type="primary">添加角色</el-button>
                 </el-col>
             </el-row>
-            <el-table :data="roleList">
+            <el-table :data="roleList" :row-key="editForm.roleId">
                 <el-table-column type="expand">
                     <template slot-scope="scope">
                         <!-- 注意这里的for循环加在什么地方 以及为什么要加el-row-->
@@ -82,7 +82,7 @@ export default {
             roleList:[],
             editRolesVisible:false,
             editForm:{
-
+                roleId:'',
                 roleName:'',
                 roleDesc:''
             },
@@ -93,7 +93,7 @@ export default {
                 children:'children'
             },
             defKeys:[],
-            roleId:''
+            
         }
     },
     methods:{

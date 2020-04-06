@@ -184,7 +184,7 @@ export default {
         resetEditForm(){
             this.$refs.editFormRef.resetFields();
         },
-        // 注意这种子填充的操作都要从当前行取值，所以应该传过来
+        // 注意这种自填充的操作都要从当前行取值，所以应该传过来
         async showEditDialog(id){
             const {data:res} = await this.$http.get(`categories/${this.cateId}/attributes/${id}`,{params:{
                 attr_sel:this.activeName
